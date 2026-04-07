@@ -1,0 +1,176 @@
+-- =========================================
+--        MYNTRA PRODUCT ANALYSIS PROJECT
+-- =========================================
+
+create database if not exists myntra;
+use myntra;
+
+-- =========================================
+-- 1. VIEW FULL DATASET
+-- =========================================
+select * 
+from data;
+
+-- =========================================
+-- 2. SHOW PRODUCT NAME AND BRAND NAME
+-- =========================================
+select product_name, brand_name
+from data;
+
+-- =========================================
+-- 3. SHOW SELLING DIFFERENCE
+-- (MARKED PRICE - DISCOUNTED PRICE)
+-- =========================================
+select product_name,
+       brand_name,
+       marked_price,
+       discounted_price,
+       (marked_price - discounted_price) as sell_price
+from data;
+
+-- =========================================
+-- 4. CALCULATE REAL RATING SCORE
+-- (RATING * RATING_COUNT)
+-- =========================================
+select product_name,
+       brand_name,
+       rating,
+       rating_count,
+       (rating * rating_count) as real_rating
+from data;
+
+-- =========================================
+-- 5. TOTAL NUMBER OF PRODUCTS
+-- =========================================
+select count(*) as total_products
+from data;
+
+-- =========================================
+-- 6. TOTAL UNIQUE BRANDS
+-- =========================================
+select count(distinct brand_tag) as total_brands
+from data;
+
+-- =========================================
+-- 7. TOTAL UNIQUE PRODUCTS OF PUMA
+-- =========================================
+select count(distinct product_name) as total_puma_products
+from data
+where brand_tag = 'puma';
+
+-- =========================================
+-- 8. BEST PRODUCTS BETWEEN 300 AND 4000
+-- FOR PUMA AND ADIDAS
+-- =========================================
+select product_name,
+       brand_tag,
+       discounted_price,
+       rating,
+       rating_count
+from data
+where discounted_price between 300 and 4000
+  and brand_tag in ('puma', 'adidas')
+  and rating > 4
+  and rating_count > 15
+order by rating desc, discounted_price asc;
+
+-- =========================================
+-- 9. PATTERN MATCHING
+-- BRANDS STARTING WITH 'K'
+-- =========================================
+select *
+from data
+where brand_tag like 'k%';
+
+-- =========================================
+-- 10. AVERAGE DISCOUNTED PRICE
+-- =========================================
+select round(avg(discounted_price), 2) as avg_discounted_price
+from data;
+
+-- =========================================
+-- 11. AVERAGE MARKED PRICE
+-- =========================================
+select round(avg(marked_price), 2) as avg_marked_price
+from data;
+
+-- =========================================
+-- 12. MAXIMUM DISCOUNTED PRICE
+-- =========================================
+select max(discounted_price) as max_discounted_price
+from data;
+
+-- =========================================
+-- 13. MAXIMUM DISCOUNTED PRICE OF PUMA
+-- =========================================
+select max(discounted_price) as max_puma_price
+from data
+where brand_tag = 'puma';
+
+-- =========================================
+-- 14. TOP 5 BRANDS BY PRODUCT COUNT
+-- =========================================
+select brand_tag,
+       count(product_name) as total_products
+from data
+group by brand_tag
+order by total_products desc
+limit 5;
+
+-- =========================================
+-- 15. TOP 5 BRANDS WITH HIGHEST
+-- AVERAGE DISCOUNTED PRICE
+-- =========================================
+select brand_tag,
+       round(avg(discounted_price), 2) as avg_price
+from data
+group by brand_tag
+order by avg_price desc
+limit 5;
+
+-- =========================================
+-- 16. TOP 5 PRODUCT CATEGORIES
+-- WITH HIGHEST AVG PRICE
+-- =========================================
+select brand_tag,
+       product_tag,
+       round(avg(discounted_price), 2) as avg_price
+from data
+group by brand_tag, product_tag
+order by avg_price desc
+limit 5;
+
+-- =========================================
+-- 17. PUMA PRODUCT CATEGORIES
+-- WITH HIGHEST AVG PRICE
+-- =========================================
+select brand_tag,
+       product_tag,
+       round(avg(discounted_price), 2) as avg_price
+from data
+where brand_tag = 'puma'
+group by brand_tag, product_tag
+order by avg_price desc
+limit 5;
+
+-- =========================================
+-- 18. RATING FREQUENCY ANALYSIS
+-- =========================================
+select rating,
+       count(rating) as frequency
+from data
+where rating is not null
+group by rating
+order by frequency desc
+limit 10;
+
+-- =========================================
+-- 19. PRODUCTS WITH ABOVE AVERAGE RATING
+-- =========================================
+select brand_tag,
+       product_name,
+       rating
+from data
+where rating > (select avg(rating) from data)
+order by rating desc
+limit 20;
